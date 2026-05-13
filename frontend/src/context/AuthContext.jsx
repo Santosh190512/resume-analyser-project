@@ -1,8 +1,7 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import API from "../api/api";
-
-const AuthContext = createContext(null);
+import { AuthContext } from "./AuthContextValue";
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
@@ -18,19 +17,20 @@ export function AuthProvider({ children }) {
     setUser(userData);
   };
 
-  const register = async (formData) => {
+  const register = useCallback(async (formData) => {
     const res = await API.post("/auth/register/", formData);
     saveSession(res.data.access, res.data.refresh, res.data.user);
     return res.data;
-  };
+  }, []);
 
-  const login = async (formData) => {
+  const login = useCallback(async (formData) => {
     const res = await API.post("/auth/login/", formData);
     saveSession(res.data.access, res.data.refresh, res.data.user);
     return res.data;
-  };
+  }, []);
 
-  const refreshProfile = async () => {
+  const refreshProfile = useCallback(async (options = {}) => {
+    const { markLoading = true } = options;
     const token = localStorage.getItem("accessToken");
 
     if (!token) {
@@ -38,7 +38,9 @@ export function AuthProvider({ children }) {
       return null;
     }
 
-    setLoading(true);
+    if (markLoading) {
+      setLoading(true);
+    }
 
     try {
       const res = await API.get("/auth/profile/");
@@ -54,16 +56,16 @@ export function AuthProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const updateProfile = async (formData) => {
+  const updateProfile = useCallback(async (formData) => {
     const res = await API.put("/auth/profile/", formData);
     localStorage.setItem("authUser", JSON.stringify(res.data.user));
     setUser(res.data.user);
     return res.data.user;
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       await API.post("/auth/logout/");
     } catch {
@@ -74,11 +76,15 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("authUser");
     setUser(null);
-  };
+  }, []);
 
   useEffect(() => {
-    refreshProfile();
-  }, []);
+    const timeoutId = window.setTimeout(() => {
+      void refreshProfile({ markLoading: false });
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [refreshProfile]);
 
   const value = useMemo(() => ({
     user,
@@ -89,15 +95,11 @@ export function AuthProvider({ children }) {
     logout,
     refreshProfile,
     updateProfile,
-  }), [user, loading]);
+  }), [user, loading, register, login, logout, refreshProfile, updateProfile]);
 
   return (
     <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  return useContext(AuthContext);
 }

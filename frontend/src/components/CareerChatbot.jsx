@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Bot, Loader2, MessageCircle, Send, Sparkles, X } from "lucide-react";
 
 import API from "../api/api";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 
 
 export default function CareerChatbot() {

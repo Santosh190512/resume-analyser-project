@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import {  Bot,BriefcaseBusiness, FileSearch, LayoutDashboard, LogIn, LogOut, Sparkles, UserRound } from "lucide-react";
+import { BriefcaseBusiness, FileSearch, LayoutDashboard, LogIn, LogOut, Sparkles, UserRound } from "lucide-react";
 
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 
 export default function Navbar() {
   const navigate = useNavigate();
