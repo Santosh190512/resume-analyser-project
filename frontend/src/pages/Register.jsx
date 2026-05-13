@@ -32,7 +32,7 @@ export default function Register() {
       const data = err.response?.data;
       const message = data
         ? Object.values(data).flat().join(" ")
-        : "Registration failed. Details check karo.";
+        : "Backend server se connect nahi ho pa raha. API URL, Render backend status, aur CORS settings check karo.";
       setError(message);
     } finally {
       setLoading(false);

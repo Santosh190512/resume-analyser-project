@@ -24,7 +24,13 @@ export default function Login() {
       await login(formData);
       navigate("/profile");
     } catch (err) {
-      setError(err.response?.data?.error || "Login failed. Details check karo.");
+      if (err.response?.data?.error) {
+        setError(err.response.data.error);
+      } else if (err.response?.data) {
+        setError(Object.values(err.response.data).flat().join(" "));
+      } else {
+        setError("Backend server se connect nahi ho pa raha. API URL, Render backend status, aur CORS settings check karo.");
+      }
     } finally {
       setLoading(false);
     }
