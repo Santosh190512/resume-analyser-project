@@ -8,13 +8,20 @@ from django.conf import settings
 
 import google.generativeai as genai
 
-genai.configure(api_key=settings.GEMINI_API_KEY)
+if settings.GEMINI_API_KEY:
+    genai.configure(api_key=settings.GEMINI_API_KEY)
 
 model = genai.GenerativeModel("gemini-2.5-flash")
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def resume_chatbot(request):
+    if not settings.GEMINI_API_KEY:
+        return Response(
+            {"error": "GEMINI_API_KEY Render backend environment me set nahi hai."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
     message = request.data.get("message", "").strip()
 
     if not message:

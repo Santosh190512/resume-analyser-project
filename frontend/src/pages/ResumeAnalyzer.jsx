@@ -35,7 +35,7 @@ export default function ResumeAnalyzer() {
       setError(
         err.response?.data?.error ||
         err.response?.data?.detail ||
-        "Resume analyze nahi ho paya. Login, backend aur API key check karo."
+        "Backend se response nahi mila. Render backend live hai ya nahi aur CORS/VITE_API_BASE_URL check karo."
       );
     } finally {
       setLoading(false);

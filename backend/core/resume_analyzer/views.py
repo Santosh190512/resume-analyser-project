@@ -16,7 +16,8 @@ from django.conf import settings
 from .models import Resume
 from .utils import extract_text
 
-genai.configure(api_key=settings.GEMINI_API_KEY)
+if settings.GEMINI_API_KEY:
+    genai.configure(api_key=settings.GEMINI_API_KEY)
 
 model = genai.GenerativeModel("gemini-2.5-flash")
 
@@ -81,6 +82,12 @@ def build_resume_pdf(text):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def analyze_resume(request):
+    if not settings.GEMINI_API_KEY:
+        return Response(
+            {"error": "GEMINI_API_KEY Render backend environment me set nahi hai."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
     resume_file = request.FILES.get("resume")
 
     if not resume_file:
