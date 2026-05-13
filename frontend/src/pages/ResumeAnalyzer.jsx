@@ -32,9 +32,17 @@ export default function ResumeAnalyzer() {
       setResult(res.data.analysis);
       setDownloadUrl(res.data.download_url || "");
     } catch (err) {
+      const data = err.response?.data;
+      const htmlText = typeof data === "string"
+        ? data.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
+        : "";
+
       setError(
-        err.response?.data?.error ||
-        err.response?.data?.detail ||
+        data?.error ||
+        data?.detail ||
+        htmlText ||
+        (err.response?.status ? `Backend error ${err.response.status}. Render logs check karo.` : "") ||
+        err.message ||
         "Backend se response nahi mila. Render backend live hai ya nahi aur CORS/VITE_API_BASE_URL check karo."
       );
     } finally {

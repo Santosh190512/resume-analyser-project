@@ -108,6 +108,11 @@ def analyze_resume(request):
             {"error": str(exc)},
             status=status.HTTP_400_BAD_REQUEST,
         )
+    except Exception as exc:
+        return Response(
+            {"error": f"Resume file read failed: {exc}"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     if not text:
         return Response(
@@ -136,6 +141,12 @@ def analyze_resume(request):
     except Exception as exc:
         return Response(
             {"error": f"Gemini analysis failed: {exc}"},
+            status=status.HTTP_502_BAD_GATEWAY,
+        )
+
+    if not getattr(response, "text", ""):
+        return Response(
+            {"error": "Gemini ne empty response diya. API key, model access, safety block ya quota check karo."},
             status=status.HTTP_502_BAD_GATEWAY,
         )
 
