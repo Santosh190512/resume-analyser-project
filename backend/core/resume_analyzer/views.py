@@ -16,6 +16,8 @@ from .models import Resume
 from .utils import extract_text
 from core.ai_client import generate_ai_text
 
+MAX_RESUME_TEXT_CHARS = 12000
+
 
 def extract_score(analysis):
     match = re.search(r"(\d{1,3})\s*/\s*100|(\d{1,3})\s*%", analysis)
@@ -113,6 +115,8 @@ def analyze_resume(request):
             {"error": "Could not read text from this resume."},
             status=status.HTTP_400_BAD_REQUEST,
         )
+
+    text = text[:MAX_RESUME_TEXT_CHARS]
 
     prompt = f"""
     Analyze this resume.

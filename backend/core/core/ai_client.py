@@ -14,6 +14,7 @@ def generate_ai_text(prompt):
     }
     payload = {
         "model": settings.OPENROUTER_MODEL,
+        "max_tokens": settings.OPENROUTER_MAX_TOKENS,
         "messages": [
             {"role": "user", "content": prompt},
         ],
