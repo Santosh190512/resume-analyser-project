@@ -23,6 +23,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY") or os.getenv("GEMINI_API_KEY")
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "google/gemini-2.5-flash")
+OPENROUTER_SITE_URL = os.getenv("OPENROUTER_SITE_URL", "https://resume-analyser-project-alpha.vercel.app")
+OPENROUTER_APP_NAME = os.getenv("OPENROUTER_APP_NAME", "AI Resume Analyzer")
 RAPID_API_KEY = os.getenv("RAPID_API_KEY")
 
 

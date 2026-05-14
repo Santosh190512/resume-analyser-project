@@ -5,20 +5,14 @@ from rest_framework import status
 from resume_analyzer.models import Resume
 
 from django.conf import settings
-
-import google.generativeai as genai
-
-if settings.GEMINI_API_KEY:
-    genai.configure(api_key=settings.GEMINI_API_KEY)
-
-model = genai.GenerativeModel("gemini-2.5-flash")
+from core.ai_client import generate_ai_text
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def resume_chatbot(request):
-    if not settings.GEMINI_API_KEY:
+    if not settings.OPENROUTER_API_KEY:
         return Response(
-            {"error": "GEMINI_API_KEY Render backend environment me set nahi hai."},
+            {"error": "OPENROUTER_API_KEY Render backend environment me set nahi hai."},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
@@ -89,7 +83,7 @@ def resume_chatbot(request):
     """
 
     try:
-        response = model.generate_content(prompt)
+        reply = generate_ai_text(prompt)
     except Exception as exc:
         error_message = str(exc)
 
@@ -107,5 +101,5 @@ def resume_chatbot(request):
         )
 
     return Response({
-        "reply": response.text
+        "reply": reply
     })

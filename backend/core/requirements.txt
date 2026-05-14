@@ -9,7 +9,6 @@ gunicorn>=22.0,<27.0
 whitenoise>=6.6,<7.0
 python-dotenv>=1.0,<2.0
 
-google-generativeai>=0.8,<0.9
 pdfplumber>=0.11,<0.12
 python-docx>=1.1,<2.0
 reportlab>=4.2,<5.0

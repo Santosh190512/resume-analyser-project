@@ -1,4 +1,3 @@
-import google.generativeai as genai
 import re
 from io import BytesIO
 
@@ -15,11 +14,7 @@ from django.conf import settings
 
 from .models import Resume
 from .utils import extract_text
-
-if settings.GEMINI_API_KEY:
-    genai.configure(api_key=settings.GEMINI_API_KEY)
-
-model = genai.GenerativeModel("google/gemini-2.5-flash")
+from core.ai_client import generate_ai_text
 
 
 def extract_score(analysis):
@@ -46,8 +41,7 @@ def generate_improved_resume(resume_text):
     {resume_text}
     """
 
-    response = model.generate_content(prompt)
-    return response.text
+    return generate_ai_text(prompt)
 
 
 def build_resume_pdf(text):
@@ -82,9 +76,9 @@ def build_resume_pdf(text):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def analyze_resume(request):
-    if not settings.GEMINI_API_KEY:
+    if not settings.OPENROUTER_API_KEY:
         return Response(
-            {"error": "GEMINI_API_KEY Render backend environment me set nahi hai."},
+            {"error": "OPENROUTER_API_KEY Render backend environment me set nahi hai."},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
@@ -136,23 +130,17 @@ def analyze_resume(request):
     """
 
     try:
-        response = model.generate_content(prompt)
+        analysis = generate_ai_text(prompt)
         improved_resume = generate_improved_resume(text)
     except Exception as exc:
         return Response(
-            {"error": f"Gemini analysis failed: {exc}"},
+            {"error": f"OpenRouter analysis failed: {exc}"},
             status=status.HTTP_502_BAD_GATEWAY,
         )
 
-    if not getattr(response, "text", ""):
-        return Response(
-            {"error": "Gemini ne empty response diya. API key, model access, safety block ya quota check karo."},
-            status=status.HTTP_502_BAD_GATEWAY,
-        )
-
-    resume.analysis = response.text
+    resume.analysis = analysis
     resume.improved_resume = improved_resume
-    resume.score = extract_score(response.text)
+    resume.score = extract_score(analysis)
     resume.save(update_fields=["analysis", "improved_resume", "score"])
 
     return Response({
